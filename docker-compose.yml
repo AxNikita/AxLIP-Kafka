@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - kafka-net
+
+  kafka:
+    image: bitnami/kafka
+    container_name: kafka
+    ports:
+      - "9998:9998"
+    environment:
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9998
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9998
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-net
+
+networks:
+  kafka-net:
+    driver: bridge
